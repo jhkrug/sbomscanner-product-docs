@@ -217,7 +217,7 @@ Retrieve a report:
 
 [source,bash]
 ----
-kubectl get workloadscanreports -n evantage -o yaml | yq '.items[] | select(.metadata.ownerReferences[] | .kind == "Deployment" and .name == "evantage-nettools")'
+kubectl get workloadscanreport deployment-nginx -n prod -o yaml
 ----
 
 [source,yaml]
