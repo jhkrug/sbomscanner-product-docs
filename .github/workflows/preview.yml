@@ -32,23 +32,27 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24"
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: "22"
       - name: Install Antora with the Antora Lunr Extension
         run: make environment
-      - name: Generate Community SBOM Site
-        run: make product-remote
+      - name: Generate Site
+        run: make remote
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: build/site
+      - name: Push the static site content to gh-pages branch
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          mv build/site ../site-temp
+          git checkout --orphan gh-pages
+          git rm -rf .
+          rm -rf node_modules tmp
+          mv ../site-temp/* .
+          git add .
+          git commit -m "Deploy to gh-pages branch"
+          git push --force origin gh-pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
